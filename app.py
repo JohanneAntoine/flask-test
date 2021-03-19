@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -23,7 +23,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/posts', methods=['POST'])
+@app.route('/posts', methods=['POST', 'GET'])
 def posts():
     if request.method == 'POST':
         post_title = request.form['title']
@@ -34,8 +34,10 @@ def posts():
         db.session.commit()
         return redirect('/posts')
     else:
-        raise NotImplemented
-
+        # read the database?
+        blogPosts = db.session.query(BlogPost).all()
+        db.session.commit()
+        return render_template('posts.html', posts=blogPosts)
 
 @app.route('/posts/delete/<int:id>')
 def delete(id):
@@ -52,9 +54,18 @@ def edit(id):
 
 @app.route('/posts/new', methods=['GET'])
 def new_post():
-    # Add route to create a new post
-    return render_template('new_post.html')
+    post_title = request.args.get('title', '')
+    post_content = request.args.get('content', '')
+    author = request.args.get('author', '')
+    if (post_content == '' and post_content == '' and author == ''):
+        return render_template('new_post.html')
+    else:
+        new_post = BlogPost(title=post_title, content=post_content, author=author)
+        db.session.add(new_post)
+        db.session.commit()
+        return "You did it!"
+    
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=3000)
