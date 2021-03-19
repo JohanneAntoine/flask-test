@@ -1,2 +1,2 @@
-# Flask_blog-
-made a example flask project using python backend sqlite db and html css
+# A simple Flask Block
+This is a simple Flask blog
